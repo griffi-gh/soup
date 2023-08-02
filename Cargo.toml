@@ -1,0 +1,14 @@
+[package]
+name = "soup"
+version = "0.1.0"
+edition = "2021"
+
+[profile.dev]
+opt-level = 1
+
+[dependencies]
+# modular-bitfield = "0.11"
+pixels = "0.13"
+winit = "0.28"
+bytemuck = "1.13"
+fastrand = "2.0"
