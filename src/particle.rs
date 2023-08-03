@@ -91,14 +91,19 @@ particles! {
 pub struct Particle {
   pub element: Element,
   pub did_update: bool,
+  pub temperature: i16,
   pub userdata: u32,
 }
 
 impl Particle {
-  pub fn new(element: Element) -> Self {
-    Self {
+  pub fn spawn(element: Element) -> Self {
+    let mut particle = Self {
       element,
       ..Default::default()
+    };
+    if let Some(ParticleSpawnFn(spawn_fn)) = element.meta().spawn {
+      spawn_fn(&mut particle);
     }
+    particle
   }
 }

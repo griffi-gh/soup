@@ -41,7 +41,7 @@ fn main() {
   
   for x in 50..(Simulation::WIDTH - 50) {
     for y in (Simulation::HEIGHT - 50)..(Simulation::HEIGHT - 40)  {
-      *sim.get_mut((x, y)) = Particle::new(Element::Wall);
+      *sim.get_mut((x, y)) = Particle::spawn(Element::Wall);
     }
   }
 
@@ -90,15 +90,19 @@ fn main() {
         for pos in brush.centered().iter() {
           let particle = sim.get_mut(pos);
           if particle.element == Element::Air || elem == Element::Air {
-            *particle = Particle::new(elem);
+            *particle = Particle::spawn(elem);
           }
         }
       }
+      let size_input =
+        input.scroll_diff()
+        + (5. * input.key_pressed(VirtualKeyCode::RBracket) as u32 as f32)
+        - (5. * input.key_pressed(VirtualKeyCode::LBracket) as u32 as f32);
       if !input.held_control() {
-        brush.size.0 = (brush.size.0 as isize + input.scroll_diff() as isize).max(1) as usize;
+        brush.size.0 = (brush.size.0 as isize + size_input as isize).max(1) as usize;
       }
       if !input.held_shift() {
-        brush.size.1 = (brush.size.1 as isize + input.scroll_diff() as isize).max(1) as usize;
+        brush.size.1 = (brush.size.1 as isize + size_input as isize).max(1) as usize;
       }
 
       //Step simutation
