@@ -20,6 +20,16 @@ use heat::HeatSimulation;
 use renderer::SimulationRenderer;
 use brush::Brush;
 
+fn debug_draw_heat(sim: &Simulation) -> Vec<u8> {
+  let mut buffer = vec![0u8; Simulation::WIDTH * Simulation::HEIGHT * 4];
+  let buffer_view: &mut [u32] = bytemuck::cast_slice_mut(&mut buffer[..]);
+  for (i, pixel) in buffer_view.iter_mut().enumerate() {
+    *pixel = ((sim.get((i as i32 % Simulation::IWIDTH, i as i32 / Simulation::IWIDTH)).temperature / 750.) * 255.) as u32;
+    *pixel |= 0xff000000;
+  }
+  buffer
+}
+
 fn main() {
   let size = LogicalSize::new(Simulation::WIDTH as u32, Simulation::HEIGHT as u32);
   
@@ -68,6 +78,12 @@ fn main() {
           *p = p.saturating_add(64);
         }
         pixel[3] = 0xff;
+      }
+      
+      //render heat
+      if input.key_held(VirtualKeyCode::H) {
+        let debug = debug_draw_heat(&sim);
+        pixels.frame_mut().copy_from_slice(&debug[..]);
       }
 
       pixels.render().unwrap();

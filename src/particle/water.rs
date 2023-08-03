@@ -1,5 +1,5 @@
 use crate::{util::const_wrap, simulation::Simulation};
-use super::{ElementMetadata, ElementTypeHint, ParticleUpdateFn};
+use super::{Element, ElementMetadata, ElementTypeHint, ParticleUpdateFn};
 
 const SELF: &ElementMetadata = water();
 
@@ -9,9 +9,13 @@ pub const fn water() -> &'static ElementMetadata {
     type_hint: ElementTypeHint::Liquid,
     color: 0x4e7dc3ff,
     density: 10,
-    heat_conductivity: 0.5,
+    heat_conductivity: 0.75,
     spawn: None,
     update: Some(const_wrap!(ParticleUpdateFn(|sim, (x, y)| {
+      if sim.get((x, y)).temperature > 1. {
+        sim.get_mut((x, y)).element = Element::Steam;
+        return
+      }
       let order = if fastrand::bool() { [
         (0, 1),
         (1, 0),

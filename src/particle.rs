@@ -105,6 +105,7 @@ particles! {
     Wall: mod wall,
     Water: mod water,
     Fire: mod fire,
+    Steam: mod steam,
   }
 }
 

@@ -9,7 +9,7 @@ pub const fn sand() -> &'static ElementMetadata {
     type_hint: ElementTypeHint::Powder,
     color: 0xcfa668ff,
     density: 1000,
-    heat_conductivity: 0.4,
+    heat_conductivity: 0.5,
     spawn: Some(const_wrap!(ParticleSpawnFn(|part| {
       let shading = fastrand::u8(..0x20);
       part.userdata = u32::from_be_bytes([shading, shading, shading, 0]);
