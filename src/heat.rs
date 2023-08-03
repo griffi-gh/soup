@@ -34,25 +34,21 @@ impl HeatSimulation {
         .enumerate()
         .for_each(|(y, sim_row)| {
           for (x, particle) in sim_row.iter_mut().enumerate() {
-            let try_get = |y: usize, x: usize| {
-              self.buffer.get(y).and_then(|r| r.get(x)).copied()
+            let neighbour = |ox: i32, oy: i32| {
+              let x = x as i32 + ox;
+              let y = y as i32 + oy;
+              if !Simulation::fits((x, y)) { return 0. }
+              self.buffer[y as usize][x as usize]
             };
-            let try_get_or_zero = |y: usize, x: usize| {
-              try_get(y, x).unwrap_or(0.)
-            };
-            let y_up = y.wrapping_sub(1);
-            let y_down = y.wrapping_add(1);
-            let x_left = x.wrapping_sub(1);
-            let x_right = x.wrapping_add(1);
             let neighbours_temp = 0.125 * (
-              try_get_or_zero(y_up, x_left) * FRAC_1_SQRT_2 +
-              try_get_or_zero(y_up, x) +
-              try_get_or_zero(y_up, x_right) * FRAC_1_SQRT_2 +
-              try_get_or_zero(y, x_left) +
-              try_get_or_zero(y, x_right) +
-              try_get_or_zero(y_down, x_left) * FRAC_1_SQRT_2 +
-              try_get_or_zero(y_down, x) +
-              try_get_or_zero(y_down, x_right) * FRAC_1_SQRT_2
+              neighbour( 1, -1) * FRAC_1_SQRT_2 +
+              neighbour( 1,  0) +
+              neighbour( 1,  1) * FRAC_1_SQRT_2 +
+              neighbour( 0, -1) +
+              neighbour( 0,  1) +
+              neighbour(-1, -1) * FRAC_1_SQRT_2 +
+              neighbour(-1,  0) +
+              neighbour(-1,  1) * FRAC_1_SQRT_2
             );
             let error = neighbours_temp - particle.temperature;
             let heat_conductivity = particle.element.meta().heat_conductivity;
