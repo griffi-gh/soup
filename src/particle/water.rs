@@ -1,12 +1,14 @@
 use crate::{
-  particle::{ParticleInfo, Element, ParticleUpdateFn},
+  particle::{ElementMetadata, Element, ParticleUpdateFn},
   util::const_wrap,
 };
 
-pub const fn water() -> &'static ParticleInfo {
-  &ParticleInfo {
+pub const fn water() -> &'static ElementMetadata {
+  &ElementMetadata {
     name: "Water",
     color: 0x4e7dc3ff,
+    density: 0,
+    spawn: None,
     update: Some(const_wrap!(ParticleUpdateFn(|sim, (x, y)| {
       //Fall down
       let order = if fastrand::bool() { [
@@ -31,5 +33,6 @@ pub const fn water() -> &'static ParticleInfo {
         }
       }
     }))),
+    draw: None,
   }
 }

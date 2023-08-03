@@ -2,13 +2,43 @@ use crate::Simulation;
 
 #[repr(transparent)]
 #[derive(Clone, Copy, Debug)]
+pub struct ParticleSpawnFn(pub fn(&mut Particle));
+
+#[repr(transparent)]
+#[derive(Clone, Copy, Debug)]
 pub struct ParticleUpdateFn(pub fn(&mut Simulation, (usize, usize)));
 
+#[repr(transparent)]
 #[derive(Clone, Copy, Debug)]
-pub struct ParticleInfo {
+pub struct ParticleDrawFn(pub fn(&Particle, u64) -> u32);
+
+#[derive(Clone, Copy, Debug)]
+pub struct ElementMetadata {
   pub name: &'static str,
   pub color: u32,
+  pub density: u32,
+  pub spawn: Option<ParticleSpawnFn>,
   pub update: Option<ParticleUpdateFn>,
+  pub draw: Option<ParticleDrawFn>
+}
+
+impl ElementMetadata {
+  pub const fn default() -> Self {
+    Self {
+      name: "<default>",
+      color: 0xffffffff,
+      density: 0,
+      spawn: None,
+      update: None,
+      draw: None,
+    }
+  }
+}
+
+impl Default for ElementMetadata {
+  fn default() -> Self {
+    Self::default()
+  }
 }
 
 macro_rules! particles {
@@ -33,7 +63,7 @@ macro_rules! particles {
         $(Self::$enum_field),*
       ];
 
-      pub const fn info(self) -> &'static ParticleInfo {
+      pub const fn meta(self) -> &'static ElementMetadata {
         match self {
           $($enum::$enum_field => $mod_name::$mod_name()),*
         }

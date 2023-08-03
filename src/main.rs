@@ -39,8 +39,8 @@ fn main() {
   let mut sim = Simulation::new();
   let mut ren = SimulationRenderer::new();
   
-  for x in 100..700 {
-    for y in 550..560  {
+  for x in 50..(Simulation::WIDTH - 50) {
+    for y in (Simulation::HEIGHT - 50)..(Simulation::HEIGHT - 40)  {
       *sim.get_mut((x, y)) = Particle::new(Element::Wall);
     }
   }

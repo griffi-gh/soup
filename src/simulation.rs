@@ -16,6 +16,10 @@ impl Simulation {
     }
   }
 
+  pub fn frame(&self) -> u64 {
+    self.frame
+  }
+  
   pub fn get(&self, pos: (usize, usize)) -> &Particle {
     &self.state[pos.1][pos.0]
   }
@@ -47,7 +51,7 @@ impl Simulation {
       for mut x in 0..Self::WIDTH {
         if reverse_x { x = Self::WIDTH - 1 - x }
         let particle = self.get_mut((x, y));
-        let particle_info = particle.element.info();
+        let particle_info = particle.element.meta();
         if let Some(update_fn) = particle_info.update {
           if particle.did_update { continue }
           particle.did_update = true;
