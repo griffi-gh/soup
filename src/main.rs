@@ -94,8 +94,12 @@ fn main() {
           }
         }
       }
-      brush.size.0 = (brush.size.0 as isize + input.scroll_diff() as isize).max(1) as usize;
-      brush.size.1 = (brush.size.1 as isize + input.scroll_diff() as isize).max(1) as usize;
+      if !input.held_control() {
+        brush.size.0 = (brush.size.0 as isize + input.scroll_diff() as isize).max(1) as usize;
+      }
+      if !input.held_shift() {
+        brush.size.1 = (brush.size.1 as isize + input.scroll_diff() as isize).max(1) as usize;
+      }
 
       //Step simutation
       sim.step();

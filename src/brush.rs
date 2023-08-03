@@ -1,8 +1,8 @@
 #[derive(Clone, Copy, Debug, Default)]
 pub enum BrushShape {
   #[default]
-  Square,
-  Circle,
+  Rectangle,
+  Ellipse,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -15,7 +15,7 @@ pub struct Brush {
 impl Default for Brush {
   fn default() -> Self {
     Self {
-      shape: BrushShape::Circle,
+      shape: BrushShape::Ellipse,
       position: (0, 0),
       size: (15, 15),
     }
@@ -24,19 +24,27 @@ impl Default for Brush {
 
 impl Brush {
   pub fn iter(self) -> impl Iterator<Item = (usize, usize)> {
-    let Brush { shape: kind, position, size } = self;
+    let Brush { shape, position, size } = self;
     (position.0..(position.0 + size.0)).flat_map(move |x| {
       (position.1..(position.1 + size.1)).filter_map(move |y| {
-        match kind {
-          BrushShape::Square => Some((x, y)),
-          BrushShape::Circle => {
-            assert_eq!(size.0, size.1, "Ellipse not supported yet");
+        match shape {
+          BrushShape::Rectangle => {
+            Some((x, y))
+          },
+          BrushShape::Ellipse => {
+            //convert stuff to float
             let fpixel: (f64, f64) = (x as f64, y as f64);
             let fpos: (f64, f64) = (position.0 as f64, position.1 as f64);
             let fsize: (f64, f64) = (size.0 as f64, size.1 as f64);
+
+            //center of circle
             let fcenter: (f64, f64) = (fpos.0 + fsize.0 / 2., fpos.1 + fsize.1 / 2.);
-            let vec_len = ((fpixel.0 - fcenter.0).powi(2) + (fpixel.1 - fcenter.1).powi(2)).sqrt();
-            (vec_len <= fsize.0 / 2.).then_some((x, y))
+
+            //Check if inside.... then return
+            ((
+              ((fpixel.0 - fcenter.0).powi(2) / (fsize.0 / 2.).powi(2)) +
+              ((fpixel.1 - fcenter.1).powi(2) / (fsize.1 / 2.).powi(2))
+            ) <= 1.).then_some((x, y))
           },
         }
       })
