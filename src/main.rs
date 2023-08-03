@@ -2,18 +2,21 @@ use winit::{
   window::WindowBuilder,
   dpi::LogicalSize,
   event_loop::EventLoop,
-  event::{Event, WindowEvent},
+  event::Event,
 };
+use winit_input_helper::WinitInputHelper;
 use pixels::{Pixels, SurfaceTexture};
 
 pub(crate) mod util;
 pub(crate) mod particle;
 pub(crate) mod simulation;
 pub(crate) mod renderer;
+pub(crate) mod brush;
 
 use particle::{Particle, ParticleKind};
 use simulation::Simulation;
 use renderer::SimulationRenderer;
+use brush::Brush;
 
 fn main() {
   let size = LogicalSize::new(Simulation::WIDTH as u32, Simulation::HEIGHT as u32);
@@ -25,6 +28,7 @@ fn main() {
     .with_min_inner_size(size)
     .build(&event_loop)
     .unwrap();
+  let mut input = WinitInputHelper::new();
 
   let mut pixels = {
     let window_size = window.inner_size();
@@ -34,41 +38,53 @@ fn main() {
   
   let mut sim = Simulation::new();
   let mut ren = SimulationRenderer::new();
-
-  for x in 300..=400 {
-    for y in 100..=200  {
-      *sim.get_mut((x, y)) = Particle::new(ParticleKind::Sand);
-    }
-  }
-
+  
   for x in 100..700 {
     for y in 550..560  {
       *sim.get_mut((x, y)) = Particle::new(ParticleKind::Wall);
     }
   }
 
+  let mut brush = Brush::default();
+
   event_loop.run(move |event, _, control_flow| {
     control_flow.set_poll();
-    match event {
-      Event::MainEventsCleared => {
-        sim.step();
-        window.request_redraw();
-      },
-      Event::RedrawRequested(_) => {
-        ren.render(&sim);
-        pixels.frame_mut().copy_from_slice(ren.buffer());
-        pixels.render().unwrap();
-      },
-      Event::WindowEvent { event, .. } => match event {
-        WindowEvent::CloseRequested => {
-          control_flow.set_exit();
-        },
-        WindowEvent::Resized(new_size) => {
-          pixels.resize_surface(new_size.width, new_size.height).unwrap();
-        },
-        _ => ()
-      },
-      _ => ()
+
+    if let Event::RedrawRequested(_) = event {
+      ren.render(&sim);
+      pixels.frame_mut().copy_from_slice(ren.buffer());
+      pixels.render().unwrap();
+    }
+
+    if input.update(&event) {
+      // Exit if requested
+      if input.close_requested() {
+        control_flow.set_exit();
+        return
+      }
+
+      // Resize
+      if let Some(size) = input.window_resized() {
+        pixels.resize_surface(size.width, size.height).unwrap();
+      }
+
+      // Handle brush/mouse
+      if let Some(mouse) = input.mouse() {
+        brush.position = (mouse.0 as usize, mouse.1 as usize);
+      }
+      if input.mouse_held(0) {
+        for pos in brush.centered().iter() {
+          sim.get_mut(pos).kind = ParticleKind::Sand;
+        }
+      }
+      brush.size.0 = (brush.size.0 as isize + input.scroll_diff() as isize).max(1) as usize;
+      brush.size.1 = (brush.size.1 as isize + input.scroll_diff() as isize).max(1) as usize;
+
+      //Step simutation
+      sim.step();
+
+      //Request redraw
+      window.request_redraw();
     }
   })
 }
