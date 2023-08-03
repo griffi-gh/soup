@@ -16,7 +16,7 @@ impl SimulationRenderer {
   pub fn render(&mut self, sim: &Simulation) {
     for y in 0..Simulation::HEIGHT {
       for x in 0..Simulation::WIDTH {
-        self.buffer[y * Simulation::WIDTH + x] = sim.get((x, y)).kind.info().color.swap_bytes();
+        self.buffer[y * Simulation::WIDTH + x] = sim.get((x, y)).element.info().color.swap_bytes();
       }
     }
   }

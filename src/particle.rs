@@ -29,7 +29,7 @@ macro_rules! particles {
     }
 
     impl $enum {
-      const ALL: &'static [Self] = &[
+      pub const ALL: &'static [Self] = &[
         $(Self::$enum_field),*
       ];
 
@@ -43,7 +43,7 @@ macro_rules! particles {
 }
 
 particles! {
-  ParticleKind {
+  Element {
     Air: mod air,
     Sand: mod sand,
     Wall: mod wall,
@@ -59,15 +59,15 @@ particles! {
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Particle {
-  pub kind: ParticleKind,
+  pub element: Element,
   pub did_update: bool,
   pub userdata: u32,
 }
 
 impl Particle {
-  pub fn new(kind: ParticleKind) -> Self {
+  pub fn new(element: Element) -> Self {
     Self {
-      kind,
+      element,
       ..Default::default()
     }
   }

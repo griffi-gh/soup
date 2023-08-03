@@ -1,5 +1,5 @@
 use crate::{
-  particle::{ParticleInfo, ParticleKind, ParticleUpdateFn},
+  particle::{ParticleInfo, Element, ParticleUpdateFn},
   util::const_wrap,
 };
 
@@ -25,7 +25,7 @@ pub const fn water() -> &'static ParticleInfo {
       for offset in order {
         let desired = (x.wrapping_add_signed(offset.0), y.wrapping_add_signed(offset.1));
         let current = (x, y);
-        if sim.get(desired).kind == ParticleKind::Air {
+        if sim.get(desired).element == Element::Air {
           sim.swap(current, desired);
           break
         }

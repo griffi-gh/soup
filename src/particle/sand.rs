@@ -1,5 +1,5 @@
 use crate::{
-  particle::{ParticleInfo, ParticleKind, ParticleUpdateFn},
+  particle::{ParticleInfo, Element, ParticleUpdateFn},
   util::const_wrap,
 };
 
@@ -13,7 +13,7 @@ pub const fn sand() -> &'static ParticleInfo {
       for ox in order {
         let desired = (x.wrapping_add_signed(ox), y + 1);
         let current = (x, y);
-        if sim.get(desired).kind == ParticleKind::Air {
+        if sim.get(desired).element == Element::Air {
           sim.swap(current, desired);
           break
         }

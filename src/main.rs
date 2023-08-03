@@ -2,7 +2,7 @@ use winit::{
   window::WindowBuilder,
   dpi::LogicalSize,
   event_loop::EventLoop,
-  event::Event,
+  event::{Event, VirtualKeyCode},
 };
 use winit_input_helper::WinitInputHelper;
 use pixels::{Pixels, SurfaceTexture};
@@ -13,7 +13,7 @@ pub(crate) mod simulation;
 pub(crate) mod renderer;
 pub(crate) mod brush;
 
-use particle::{Particle, ParticleKind};
+use particle::{Particle, Element};
 use simulation::Simulation;
 use renderer::SimulationRenderer;
 use brush::Brush;
@@ -41,11 +41,12 @@ fn main() {
   
   for x in 100..700 {
     for y in 550..560  {
-      *sim.get_mut((x, y)) = Particle::new(ParticleKind::Wall);
+      *sim.get_mut((x, y)) = Particle::new(Element::Wall);
     }
   }
 
   let mut brush = Brush::default();
+  let mut selection = Element::Sand;
 
   event_loop.run(move |event, _, control_flow| {
     control_flow.set_poll();
@@ -68,13 +69,29 @@ fn main() {
         pixels.resize_surface(size.width, size.height).unwrap();
       }
 
+      // Hadle element selection
+      const KEY_ELEMENT_MAP: &[(VirtualKeyCode, Element)] = &[
+        (VirtualKeyCode::Key1, Element::Sand),
+        (VirtualKeyCode::Key2, Element::Water),
+        (VirtualKeyCode::Key3, Element::Wall),
+      ];
+      for (key, elem) in KEY_ELEMENT_MAP {
+        if input.key_pressed(*key) {
+          selection = *elem;
+        }
+      }
+
       // Handle brush/mouse
       if let Some(mouse) = input.mouse() {
         brush.position = (mouse.0 as usize, mouse.1 as usize);
       }
-      if input.mouse_held(0) {
+      if input.mouse_held(0) || input.mouse_held(1) {
+        let elem = if input.mouse_held(0) { selection } else { Element::Air };
         for pos in brush.centered().iter() {
-          sim.get_mut(pos).kind = ParticleKind::Sand;
+          let particle = sim.get_mut(pos);
+          if particle.element == Element::Air || elem == Element::Air {
+            *particle = Particle::new(elem);
+          }
         }
       }
       brush.size.0 = (brush.size.0 as isize + input.scroll_diff() as isize).max(1) as usize;

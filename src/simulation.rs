@@ -47,7 +47,7 @@ impl Simulation {
       for mut x in 0..Self::WIDTH {
         if reverse_x { x = Self::WIDTH - 1 - x }
         let particle = self.get_mut((x, y));
-        let particle_info = particle.kind.info();
+        let particle_info = particle.element.info();
         if let Some(update_fn) = particle_info.update {
           if particle.did_update { continue }
           particle.did_update = true;
