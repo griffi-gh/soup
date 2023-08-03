@@ -9,8 +9,8 @@ pub struct Simulation {
 }
 
 impl Simulation {
-  pub const WIDTH: usize = 800;
-  pub const HEIGHT: usize = 600;
+  pub const WIDTH: usize = 900;
+  pub const HEIGHT: usize = 550;
 
   pub const IWIDTH: i32 = Self::WIDTH as _;
   pub const IHEIGHT: i32 = Self::HEIGHT as _;
