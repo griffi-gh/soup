@@ -43,7 +43,8 @@ impl Simulation {
   }
 
   pub fn fits(pos: (i32, i32)) -> bool {
-    pos.0 >= 0 && pos.1 >= 0 && pos.0 < Self::WIDTH as i32 && pos.1 < Self::HEIGHT as i32
+    (0..Self::IWIDTH).contains(&pos.0) &&
+    (0..Self::IHEIGHT).contains(&pos.1)
   }
 
   pub fn swap(&mut self, a: (i32, i32), b: (i32, i32)) {

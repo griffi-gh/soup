@@ -55,8 +55,21 @@ fn main() {
     control_flow.set_poll();
 
     if let Event::RedrawRequested(_) = event {
+      //render simulation
       renderer.render(&sim);
       pixels.frame_mut().copy_from_slice(renderer.buffer());
+
+      //render brush
+      for pos in brush.centered().iter() {
+        if !Simulation::fits(pos) { continue }
+        let base = 4 * (Simulation::WIDTH * pos.1 as usize + pos.0 as usize);
+        let pixel = &mut pixels.frame_mut()[base..(base + 4)];
+        for p in pixel.iter_mut().take(3) {
+          *p = p.saturating_add(64);
+        }
+        pixel[3] = 0xff;
+      }
+
       pixels.render().unwrap();
     }
 
