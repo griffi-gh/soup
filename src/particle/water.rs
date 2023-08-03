@@ -1,4 +1,4 @@
-use crate::util::const_wrap;
+use crate::{util::const_wrap, simulation::Simulation};
 use super::{ElementMetadata, ElementTypeHint, ParticleUpdateFn};
 
 const SELF: &ElementMetadata = water();
@@ -26,8 +26,9 @@ pub const fn water() -> &'static ElementMetadata {
         (1, 1),
       ] };
       for offset in order {
-        let desired = (x.wrapping_add_signed(offset.0), y.wrapping_add_signed(offset.1));
         let current = (x, y);
+        let desired = (x + offset.0, y + offset.1);
+        if !Simulation::fits(desired) { continue }
         if sim.get(desired).element.meta().density < SELF.density {
           sim.swap(current, desired);
           break

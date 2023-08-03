@@ -1,5 +1,5 @@
-use crate::{util::const_wrap, particle::{ParticleSpawnFn, ParticleUpdateFn, Element}};
-use super::{ElementMetadata, ElementTypeHint};
+use crate::{util::const_wrap, simulation::Simulation};
+use super::{ElementMetadata, ElementTypeHint, ParticleSpawnFn, ParticleUpdateFn, Element};
 
 const SELF: &ElementMetadata = fire();
 
@@ -21,7 +21,8 @@ pub const fn fire() -> &'static ElementMetadata {
       let order = if fastrand::bool() { [0, 1, -1] } else { [0, -1, 1] };
       for ox in order {
         let current = (x, y);
-        let desired = (x.wrapping_add_signed(ox), y - 1);
+        let desired = (x + ox, y - 1);
+        if !Simulation::fits(desired) { continue }
         if sim.get(desired).element.meta().density < SELF.density {
           sim.swap(current, desired);
         }

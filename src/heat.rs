@@ -18,7 +18,7 @@ impl HeatSimulation {
   fn update_buffer(&mut self, sim: &Simulation) {
     for y in 0..Simulation::HEIGHT {
       for x in 0..Simulation::WIDTH {
-        let particle = sim.get((x, y));
+        let particle = sim.get((x as i32, y as i32));
         self.buffer[y][x] = particle.temperature;
       }
     }

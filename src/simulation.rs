@@ -12,6 +12,9 @@ impl Simulation {
   pub const WIDTH: usize = 800;
   pub const HEIGHT: usize = 600;
 
+  pub const IWIDTH: i32 = Self::WIDTH as _;
+  pub const IHEIGHT: i32 = Self::HEIGHT as _;
+
   pub fn new() -> Self {
     Self {
       state: box_array![[Particle::default(); Self::WIDTH]; Self::HEIGHT],
@@ -31,25 +34,29 @@ impl Simulation {
     self.frame
   }
   
-  pub fn get(&self, pos: (usize, usize)) -> &Particle {
-    &self.state[pos.1][pos.0]
+  pub fn get(&self, pos: (i32, i32)) -> &Particle {
+    &self.state[pos.1 as usize][pos.0 as usize]
   }
 
-  pub fn get_mut(&mut self, pos: (usize, usize)) -> &mut Particle {
-    &mut self.state[pos.1][pos.0]
+  pub fn get_mut(&mut self, pos: (i32, i32)) -> &mut Particle {
+    &mut self.state[pos.1 as usize][pos.0 as usize]
   }
 
-  pub fn swap(&mut self, a: (usize, usize), b: (usize, usize)) {
+  pub fn fits(pos: (i32, i32)) -> bool {
+    pos.0 >= 0 && pos.1 >= 0 && pos.0 < Self::WIDTH as i32 && pos.1 < Self::HEIGHT as i32
+  }
+
+  pub fn swap(&mut self, a: (i32, i32), b: (i32, i32)) {
     if a == b { return }
-    let x = self.state[a.1][a.0];
-    self.state[a.1][a.0] = self.state[b.1][b.0];
-    self.state[b.1][b.0] = x;
+    let x = self.state[a.1 as usize][a.0 as usize];
+    self.state[a.1 as usize][a.0 as usize] = self.state[b.1 as usize][b.0 as usize];
+    self.state[b.1 as usize][b.0 as usize] = x;
   }
 
   pub fn step(&mut self) {
     // Reset did_update flag
-    for y in 0..Self::HEIGHT {
-      for x in 0..Self::WIDTH {
+    for y in 0..Self::IHEIGHT {
+      for x in 0..Self::IWIDTH {
         self.get_mut((x, y)).did_update = false;
       }
     }
@@ -57,10 +64,10 @@ impl Simulation {
     // Update everything
     let reverse_x = self.frame & 0b10 != 0;
     let reverse_y = self.frame & 0b01 != 0;
-    for mut y in 0..Self::HEIGHT {
-      if reverse_y { y = Self::HEIGHT - 1 - y }
-      for mut x in 0..Self::WIDTH {
-        if reverse_x { x = Self::WIDTH - 1 - x }
+    for mut y in 0..Self::IHEIGHT {
+      if reverse_y { y = Self::IHEIGHT - 1 - y }
+      for mut x in 0..Self::IWIDTH {
+        if reverse_x { x = Self::IWIDTH - 1 - x }
         let particle = self.get_mut((x, y));
         let particle_info = particle.element.meta();
         if let Some(update_fn) = particle_info.update {

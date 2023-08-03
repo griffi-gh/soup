@@ -16,7 +16,7 @@ impl SimulationRenderer {
   pub fn render(&mut self, sim: &Simulation) {
     for y in 0..Simulation::HEIGHT {
       for x in 0..Simulation::WIDTH {
-        let particle = sim.get((x, y));
+        let particle = sim.get((x as i32, y as i32));
         let meta = particle.element.meta();
         let color = match meta.draw {
           Some(f) => f.0(particle, sim.frame()),

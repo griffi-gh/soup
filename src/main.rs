@@ -42,8 +42,8 @@ fn main() {
   let mut heat_sim = HeatSimulation::new();
   let mut renderer = SimulationRenderer::new();
 
-  for x in 50..(Simulation::WIDTH - 50) {
-    for y in (Simulation::HEIGHT - 50)..(Simulation::HEIGHT - 40)  {
+  for x in 50..(Simulation::IWIDTH - 50) {
+    for y in (Simulation::IHEIGHT - 50)..(Simulation::IHEIGHT - 40)  {
       *sim.get_mut((x, y)) = Particle::spawn(Element::Wall);
     }
   }
@@ -87,11 +87,12 @@ fn main() {
 
       // Handle brush/mouse
       if let Some(mouse) = input.mouse() {
-        brush.position = (mouse.0 as usize, mouse.1 as usize);
+        brush.position = (mouse.0 as i32, mouse.1 as i32);
       }
       if input.mouse_held(0) || input.mouse_held(1) {
         let elem = if input.mouse_held(0) { selection } else { Element::Air };
         for pos in brush.centered().iter() {
+          if !Simulation::fits(pos) { continue }
           let particle = sim.get_mut(pos);
           if particle.element == Element::Air || elem == Element::Air {
             *particle = Particle::spawn(elem);
@@ -103,10 +104,10 @@ fn main() {
         + (5. * input.key_pressed(VirtualKeyCode::RBracket) as u32 as f32)
         - (5. * input.key_pressed(VirtualKeyCode::LBracket) as u32 as f32);
       if !input.held_control() {
-        brush.size.0 = (brush.size.0 as isize + size_input as isize).max(1) as usize;
+        brush.size.0 = (brush.size.0 as i32 + size_input as i32).max(1) as u32;
       }
       if !input.held_shift() {
-        brush.size.1 = (brush.size.1 as isize + size_input as isize).max(1) as usize;
+        brush.size.1 = (brush.size.1 as i32 + size_input as i32).max(1) as u32;
       }
 
       //Step simutation

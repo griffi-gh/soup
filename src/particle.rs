@@ -6,7 +6,7 @@ pub struct ParticleSpawnFn(pub fn(&mut Particle));
 
 #[repr(transparent)]
 #[derive(Clone, Copy, Debug)]
-pub struct ParticleUpdateFn(pub fn(&mut Simulation, (usize, usize)));
+pub struct ParticleUpdateFn(pub fn(&mut Simulation, (i32, i32)));
 
 #[repr(transparent)]
 #[derive(Clone, Copy, Debug)]

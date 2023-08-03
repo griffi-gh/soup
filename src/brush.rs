@@ -8,8 +8,8 @@ pub enum BrushShape {
 #[derive(Clone, Copy, Debug)]
 pub struct Brush {
   pub shape: BrushShape,
-  pub position: (usize, usize),
-  pub size: (usize, usize),
+  pub position: (i32, i32),
+  pub size: (u32, u32),
 }
 
 impl Default for Brush {
@@ -23,10 +23,10 @@ impl Default for Brush {
 }
 
 impl Brush {
-  pub fn iter(self) -> impl Iterator<Item = (usize, usize)> {
+  pub fn iter(self) -> impl Iterator<Item = (i32, i32)> {
     let Brush { shape, position, size } = self;
-    (position.0..(position.0 + size.0)).flat_map(move |x| {
-      (position.1..(position.1 + size.1)).filter_map(move |y| {
+    (position.0..(position.0 + size.0 as i32)).flat_map(move |x| {
+      (position.1..(position.1 + size.1 as i32)).filter_map(move |y| {
         match shape {
           BrushShape::Rectangle => {
             Some((x, y))
@@ -56,8 +56,8 @@ impl Brush {
   pub fn centered(self) -> Self {
     Brush {
       position: (
-        (self.position.0 as f64 - self.size.0 as f64 / 2.).round() as usize,
-        (self.position.1 as f64 - self.size.1 as f64 / 2.).round() as usize
+        (self.position.0 as f64 - self.size.0 as f64 / 2.).round() as i32,
+        (self.position.1 as f64 - self.size.1 as f64 / 2.).round() as i32
       ),
       ..self
     }

@@ -1,4 +1,4 @@
-use crate::util::const_wrap;
+use crate::{util::const_wrap, simulation::Simulation};
 use super::{ElementMetadata, ElementTypeHint, ParticleSpawnFn, ParticleUpdateFn, ParticleDrawFn};
 
 const SELF: &ElementMetadata = sand();
@@ -17,8 +17,9 @@ pub const fn sand() -> &'static ElementMetadata {
     update: Some(const_wrap!(ParticleUpdateFn(|sim, (x, y)| {
       let order = if fastrand::bool() { [0, 1, -1] } else { [0, -1, 1] };
       for ox in order {
-        let desired = (x.wrapping_add_signed(ox), y + 1);
         let current = (x, y);
+        let desired = (x + ox, y + 1);
+        if !Simulation::fits(desired) { continue }
         if sim.get(desired).element.meta().density < SELF.density {
           sim.swap(current, desired);
           break
