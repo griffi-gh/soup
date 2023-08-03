@@ -1,15 +1,15 @@
-use crate::{
-  particle::{ElementMetadata, Element, ParticleSpawnFn, ParticleUpdateFn, ParticleDrawFn},
-  util::const_wrap,
-};
+use crate::util::const_wrap;
+use super::{ElementMetadata, ElementTypeHint, ParticleSpawnFn, ParticleUpdateFn, ParticleDrawFn};
 
 const SELF: &ElementMetadata = sand();
 
 pub const fn sand() -> &'static ElementMetadata {
   &ElementMetadata {
     name: "Sand",
+    type_hint: ElementTypeHint::Powder,
     color: 0xcfa668ff,
     density: 1000,
+    heat_conductivity: 0.4,
     spawn: Some(const_wrap!(ParticleSpawnFn(|part| {
       let shading = fastrand::u8(..0x20);
       part.userdata = u32::from_be_bytes([shading, shading, shading, 0]);
@@ -25,8 +25,8 @@ pub const fn sand() -> &'static ElementMetadata {
         }
       }
     }))),
-    draw: Some(const_wrap!(ParticleDrawFn(|part, _time| {
+    draw: Some(ParticleDrawFn(|part, _time| {
       SELF.color - part.userdata
-    }))),
+    })),
   }
 }

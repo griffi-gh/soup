@@ -1,15 +1,15 @@
-use crate::{
-  particle::{ElementMetadata, Element, ParticleUpdateFn},
-  util::const_wrap,
-};
+use crate::util::const_wrap;
+use super::{ElementMetadata, ElementTypeHint, ParticleUpdateFn};
 
 const SELF: &ElementMetadata = water();
 
 pub const fn water() -> &'static ElementMetadata {
   &ElementMetadata {
     name: "Water",
+    type_hint: ElementTypeHint::Liquid,
     color: 0x4e7dc3ff,
     density: 10,
+    heat_conductivity: 0.5,
     spawn: None,
     update: Some(const_wrap!(ParticleUpdateFn(|sim, (x, y)| {
       let order = if fastrand::bool() { [

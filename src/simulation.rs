@@ -1,7 +1,10 @@
+use rayon::prelude::*;
 use crate::{particle::Particle, util::box_array};
 
+pub type SimulationState = Box<[[Particle; Simulation::WIDTH]; Simulation::HEIGHT]>;
+
 pub struct Simulation {
-  state: Box<[[Particle; Self::WIDTH]; Self::HEIGHT]>,
+  state: SimulationState,
   frame: u64,
 }
 
@@ -14,6 +17,14 @@ impl Simulation {
       state: box_array![[Particle::default(); Self::WIDTH]; Self::HEIGHT],
       frame: 0,
     }
+  }
+
+  pub fn raw_state(&self) -> &SimulationState {
+    &self.state
+  }
+
+  pub fn raw_state_mut(&mut self) -> &mut SimulationState {
+    &mut self.state
   }
 
   pub fn frame(&self) -> u64 {

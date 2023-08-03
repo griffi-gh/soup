@@ -10,11 +10,13 @@ use pixels::{Pixels, SurfaceTexture};
 pub(crate) mod util;
 pub(crate) mod particle;
 pub(crate) mod simulation;
+pub(crate) mod heat;
 pub(crate) mod renderer;
 pub(crate) mod brush;
 
 use particle::{Particle, Element};
 use simulation::Simulation;
+use heat::HeatSimulation;
 use renderer::SimulationRenderer;
 use brush::Brush;
 
@@ -37,8 +39,9 @@ fn main() {
   };
   
   let mut sim = Simulation::new();
-  let mut ren = SimulationRenderer::new();
-  
+  let mut heat_sim = HeatSimulation::new();
+  let mut renderer = SimulationRenderer::new();
+
   for x in 50..(Simulation::WIDTH - 50) {
     for y in (Simulation::HEIGHT - 50)..(Simulation::HEIGHT - 40)  {
       *sim.get_mut((x, y)) = Particle::spawn(Element::Wall);
@@ -52,8 +55,8 @@ fn main() {
     control_flow.set_poll();
 
     if let Event::RedrawRequested(_) = event {
-      ren.render(&sim);
-      pixels.frame_mut().copy_from_slice(ren.buffer());
+      renderer.render(&sim);
+      pixels.frame_mut().copy_from_slice(renderer.buffer());
       pixels.render().unwrap();
     }
 
@@ -74,6 +77,7 @@ fn main() {
         (VirtualKeyCode::Key1, Element::Sand),
         (VirtualKeyCode::Key2, Element::Water),
         (VirtualKeyCode::Key3, Element::Wall),
+        (VirtualKeyCode::Key4, Element::Fire),
       ];
       for (key, elem) in KEY_ELEMENT_MAP {
         if input.key_pressed(*key) {
@@ -107,6 +111,7 @@ fn main() {
 
       //Step simutation
       sim.step();
+      heat_sim.step(&mut sim);
 
       //Request redraw
       window.request_redraw();
